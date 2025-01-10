@@ -1,5 +1,5 @@
 from datetime import datetime
-import os, sys, time, requests, argparse
+import os, sys, socket, time, requests, argparse
 global location
 
 
@@ -41,7 +41,7 @@ def load(y):
 
 def internet():
     try:
-        s = socket(AF_NET, SOCK_STREAM)
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.connect_ex(("www.google.com",80))
         return True
     except Exception:return False
@@ -149,8 +149,8 @@ def fetcher(ip_addr):
             }
         else:
             return {
-                "Status": "Failed"
-                "Error": f"HTTP {resp.status_code} - Unable to fetch IP info."
+                "Status": "Failed",
+                "Error": f"HTTP {resp.status_code} - Unable to fetch IP info.",
             }
     except Exception as e:
         return {"Error": str(e)}
@@ -162,10 +162,11 @@ def ipmapper(ip_addr,mapper):
     infoga = fetcher(ip_addr)
 
     for key, value in infoga.items():
-        if not value == ("Failed"):
+        if not key==("Error") or value==("Failed"):
             print(f"{info} {key}: {value}")
         else:
             print(f"{err} {key}: {value}")
+            print(f"{stop}")
             os.sys.exit()
 
     if not mapper == True:
@@ -196,10 +197,12 @@ def main():
     update = argument.update
     pub_ip = argument.public_ip
     ip_addr = argument.ip_address
-    # if not internet():
-    if internet():
+
+    # if internet():
+    if not internet():
         print(f"\n{err} Error: Please check your internet connection{stop}")
         os.sys.exit()
+        
     if update:updateus()
     elif about:aboutus()
     elif ip_addr and mapip:ipmapper(ip_addr,mapper=True)
